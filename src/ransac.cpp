@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
-#include <obj.h> // Make sure this is the correct path to your header
+#include <obj.h>
 
 // Function to estimate a plane from three points
 bool estimate_plane(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2, const Eigen::Vector3f &p3, 
@@ -23,15 +23,15 @@ float point_to_plane_distance(const Eigen::Vector3f &point, const Eigen::Vector3
 }
 
 // Main RANSAC algorithm to find the best plane
-Eigen::Vector3f ransac(const std::vector<Eigen::Vector3f> &points, int iterations, float distance_threshold) {
+void ransac(const std::vector<Eigen::Vector3f> &points, int iterations, float distance_threshold, std::vector<Eigen::Vector3f> &colors) {
     std::random_device rd;
     // Initialize a Mersenne Twister pseudo-random generator with a random seed from std::random_device
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> dist(0, points.size() - 1);
 
     int best_inlier_count = 0;
-    Eigen::Vector3f best_centroid;
-    Eigen::Vector3f best_normal;
+    Eigen::Vector3f best_p;
+    Eigen::Vector3f best_n;
 
     for(int i = 0; i < iterations; ++i) {
         // Randomly select 3 different points
@@ -50,20 +50,17 @@ Eigen::Vector3f ransac(const std::vector<Eigen::Vector3f> &points, int iteration
         // Update best plane if current one has more inliers
         if(inlier_count > best_inlier_count) {
             best_inlier_count = inlier_count;
-            best_centroid = centroid;
-            best_normal = normal;
+            best_p = centroid;
+            best_n = normal;
         }
     }
 
-    if(best_inlier_count > 0) {
-        std::cout << "Best plane found with centroid: " << best_centroid.transpose() 
-                  << " and normal: " << best_normal.transpose() << std::endl;
-        std::cout << "Inliers count: " << best_inlier_count << std::endl;
-    } else {
-        std::cout << "No plane could be found." << std::endl;
+    for(size_t i = 0; i < points.size(); i++) {
+        Eigen::Vector3f point = points[i];
+        if(point_to_plane_distance(point, best_p, best_n) < distance_threshold) {
+            colors[i] = Eigen::Vector3f(1, 0, 0);
+        }
     }
-
-    return best_centroid; // or return whatever you need
 }
 
 int main(int argc, char const *argv[]) {
@@ -75,20 +72,23 @@ int main(int argc, char const *argv[]) {
     const std::string filename = argv[1];
 
     std::vector<Eigen::Vector3f> points;
+    std::vector<Eigen::Vector3f> normals;
+    std::vector<Eigen::Vector3f> colors;
     
-    if(not tnp::load_obj(filename, points)) {
+    if(not tnp::load_obj(filename, points, normals, colors)) {
         std::cout << "Failed to open input file '" << filename << "'" << std::endl;
         return 1;
     }
 
     // RANSAC parameters
-    int iterations = 1000; // Number of iterations
-    float distance_threshold = 0.01f; // Distance threshold for inliers
+    int iterations = 100; // Number of iterations
+    float distance_threshold = 0.1f; // Distance threshold for inliers
 
     // Run RANSAC
-    Eigen::Vector3f best_centroid = ransac(points, iterations, distance_threshold);
+    ransac(points, iterations, distance_threshold, colors);
 
     // Your code to handle the results...
+    tnp::save_obj("result.obj", points, normals, colors);
 
     return 0;
 }
