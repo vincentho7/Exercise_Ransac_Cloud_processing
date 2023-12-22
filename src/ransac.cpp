@@ -144,7 +144,7 @@ int main(int argc, char const *argv[]) {
 
     std::vector<Eigen::Vector3f> points;
     std::vector<Eigen::Vector3f> normals;
-    // std::vector<Eigen::Vector3f> colors;
+    std::vector<Eigen::Vector3f> colors;
     
     if(not tnp::load_obj(filename, points, normals, colors)) {
         std::cout << "Failed to open input file '" << filename << "'" << std::endl;
@@ -157,7 +157,7 @@ int main(int argc, char const *argv[]) {
     int max_planes = 5;
     // Run RANSAC
     // ransac(points, iterations, distance_threshold, colors);
-    std::vector<Eigen::Vector3f> colors(points.size(), Eigen::Vector3f(0, 0, 0)); // Initialize all colors to black
+    // std::vector<Eigen::Vector3f> colors(points.size(), Eigen::Vector3f(0, 0, 0)); // Initialize all colors to black
     std::vector<Plane> detected_planes = ransac_multiple_planes(points, iterations, distance_threshold, max_planes, colors);
 
     // Your code to handle the results...
