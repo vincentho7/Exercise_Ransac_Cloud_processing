@@ -13,13 +13,18 @@ set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -g")
 include_directories(eigen-3.4.0 src)
 add_executable(unique_plan
     src/versions/part1.cpp
-    src/ransac_part1.cpp
     src/ransac.cpp
     src/color.cpp
     src/obj.cpp)
 
 add_executable(multiple_plan
     src/versions/part2.cpp
+    src/ransac.cpp
+    src/color.cpp
+    src/obj.cpp)
+
+add_executable(part3
+    src/versions/part3.cpp
     src/ransac.cpp
     src/color.cpp
     src/obj.cpp)
