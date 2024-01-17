@@ -1,6 +1,11 @@
 #include "ransac.hh"
 #include "color.hh"
 namespace RANSAC {
+// Function to estimate a plane from three points
+    int iterations = 2000; // Number of iterations
+    float dist_threshold = 0.3f; // Distance threshold for inliers
+    float align_threshold = 0.9f;
+    float pointsleft = 0.25f;
     
     void estimate_plane(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2, const Eigen::Vector3f &p3, 
                         Eigen::Vector3f &centroid, Eigen::Vector3f &normal) {
@@ -128,7 +133,7 @@ namespace RANSAC {
             color_index++;
         }
     }
-
+    
 
     std::vector<size_t> ransac_with_normals(const std::vector<Eigen::Vector3f> &points, std::vector<Eigen::Vector3f> &colors, std::vector<Eigen::Vector3f>& normals, std::vector<size_t> remaining_idx, int colorIndex) {
         int best_inlier_count = 0;
