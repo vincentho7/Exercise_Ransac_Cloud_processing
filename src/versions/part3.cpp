@@ -38,13 +38,12 @@ int main(int argc, char const *argv[]) {
     RANSAC::pointsleft = 0.15f; // percentage of points left after algorithm 
 
     auto start = std::chrono::high_resolution_clock::now();
-    RANSAC::ransac_multiple_planes(points, colors, normals);
+    RANSAC::ransac_n_mult_planes(points, colors, normals);
     auto end = std::chrono::high_resolution_clock::now();
     
     std::chrono::duration<double> duration = end - start;
     std::cout << "RANSAC took " << duration.count() << " seconds." << std::endl;
     // Your code to handle the results...
-    tnp::save_obj("mult_plan.obj", points, normals, colors);
-
+    tnp::save_obj("improved_Ransac.obj", points, normals, colors);
     return 0;
 }

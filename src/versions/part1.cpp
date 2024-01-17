@@ -30,12 +30,8 @@ int main(int argc, char const *argv[]) {
         colors = std::vector<Eigen::Vector3f>(points.size(), Eigen::Vector3f(0.5f, 0.5f, 0.5f));
     }
 
-    // RANSAC parameters
-    int iterations = 2000; // Number of iterations
-    float distance_threshold = 0.3f; // Distance threshold for inliers
-    
     auto start = std::chrono::high_resolution_clock::now();
-    simple_ransac(points, colors, iterations, distance_threshold);
+    RANSAC::simple_ransac(points, colors);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> duration = end - start;
