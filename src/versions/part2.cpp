@@ -22,16 +22,19 @@ int main(int argc, char const *argv[]) {
         std::cout << "Failed to open input file '" << filename << "'" << std::endl;
         return 1;
     }
-
+    // if (normals.size() == 0){
+    //     std::cerr << "Error: no normals in file" << std::endl;
+    //     return 1;
+    // }
     if (colors.size() == 0){
         colors = std::vector<Eigen::Vector3f>(points.size(), Eigen::Vector3f(0.5f, 0.5f, 0.5f));
     }
     // RANSAC parameters
-    int iterations = 100; // Number of iterations
-    float distance_threshold = 0.5f; // Distance threshold for inliers
+    int iterations = 2000; // Number of iterations
+    float distance_threshold = 0.3f; // Distance threshold for inliers
     // Run RANSAC
     auto start = std::chrono::high_resolution_clock::now();
-    ransac_multiple_planes(points, iterations, distance_threshold, colors, normals);
+    ransac_multiple_planes(points, colors, normals, iterations, distance_threshold);
     auto end = std::chrono::high_resolution_clock::now();
     
     std::chrono::duration<double> duration = end - start;

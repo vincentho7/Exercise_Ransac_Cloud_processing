@@ -7,7 +7,6 @@ std::vector<Eigen::Vector3f> distinctColors = {
         Eigen::Vector3f(1.0f, 1.0f, 0.0f), // Yellow
         Eigen::Vector3f(1.0f, 0.0f, 1.0f), // Magenta
         Eigen::Vector3f(0.0f, 1.0f, 1.0f), // Cyan
-        // Add more colors as needed
 };
 
 Eigen::Vector3f generate_random_color() {
@@ -25,8 +24,6 @@ Eigen::Vector3f generate_color(int colorIndex) {
     } else {
         Eigen::Vector3f newColor;
         newColor = generate_random_color();
-        
-        distinctColors.push_back(newColor); // Add the new unique color to the list
         return newColor;
     }
 }

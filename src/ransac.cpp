@@ -2,15 +2,15 @@
 #include "color.hh"
 
 // Function to estimate a plane from three points
-bool estimate_plane(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2, const Eigen::Vector3f &p3, 
+void estimate_plane(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2, const Eigen::Vector3f &p3, 
                     Eigen::Vector3f &centroid, Eigen::Vector3f &normal) {
     // Compute the centroid and normal of the plane
     centroid = (p1 + p2 + p3) / 3;
     Eigen::Vector3f u = p2 - p1;
     Eigen::Vector3f v = p3 - p1;
     normal = u.cross(v).normalized();
-    if(normal.norm() == 0) return false; // The points are collinear
-    return true;
+    // if(normal.norm() == 0) return false;
+    // return true;
 }
 
 // Function to calculate the distance from a point to a plane
@@ -34,7 +34,7 @@ std::vector<Eigen::Vector3f> select_3_random_points(std::vector<Eigen::Vector3f>
 }
 
 // Main RANSAC algorithm to find the best plane
-std::vector<size_t> ransac(const std::vector<Eigen::Vector3f> &points, int iterations, float distance_threshold, std::vector<Eigen::Vector3f> &colors, std::vector<Eigen::Vector3f>& normals, std::vector<size_t> remaining_idx, int colorIndex) {
+std::vector<size_t> ransac(const std::vector<Eigen::Vector3f> &points, std::vector<Eigen::Vector3f> &colors, std::vector<Eigen::Vector3f>& normals, std::vector<size_t> remaining_idx, int iterations, float distance_threshold, int colorIndex) {
     int best_inlier_count = 0;
     Eigen::Vector3f best_p;
     Eigen::Vector3f best_n;
@@ -45,11 +45,11 @@ std::vector<size_t> ransac(const std::vector<Eigen::Vector3f> &points, int itera
         
         Eigen::Vector3f centroid, normal;
         estimate_plane(sample_points[0], sample_points[1], sample_points[2], centroid, normal);
-
         // Count inliers
         int inlier_count = 0;
-        for(const auto &point : points) {
-            if(point_to_plane_distance(point, centroid, normal) < distance_threshold) {
+        for(size_t i = 0; i < remaining_idx.size(); i++) {
+            Eigen::Vector3f remaining_point = points[remaining_idx[i]];
+            if(point_to_plane_distance(remaining_point, centroid, normal) < distance_threshold) {
                 ++inlier_count;
             }
         }
@@ -61,12 +61,12 @@ std::vector<size_t> ransac(const std::vector<Eigen::Vector3f> &points, int itera
             best_n = normal;
         }
     }
-
+    auto color = generate_color(colorIndex);
     std::vector<size_t> new_remaining_idx;
     for(size_t i = 0; i < remaining_idx.size(); i++) {
         Eigen::Vector3f point = points[remaining_idx[i]];
         if(point_to_plane_distance(point, best_p, best_n) < distance_threshold) {
-            colors[remaining_idx[i]] = generate_color(colorIndex);
+            colors[remaining_idx[i]] = color;
         }
         else {
             new_remaining_idx.push_back(remaining_idx[i]);
@@ -75,15 +75,16 @@ std::vector<size_t> ransac(const std::vector<Eigen::Vector3f> &points, int itera
     return new_remaining_idx;
 }
 
-void ransac_multiple_planes(std::vector<Eigen::Vector3f>& points, int iterations, float distance_threshold, std::vector<Eigen::Vector3f> &colors, std::vector<Eigen::Vector3f>& normals){
+void ransac_multiple_planes(std::vector<Eigen::Vector3f>& points, std::vector<Eigen::Vector3f> &colors, std::vector<Eigen::Vector3f>& normals, int iterations, float distance_threshold){
+    // use of index to select the remaining points
     std::vector<size_t> remaining_idx;
     int color_index = 0;
     for (size_t i = 0; i < points.size(); ++i) {
         remaining_idx.push_back(i);
     }
-    while (static_cast<float>(remaining_idx.size()) / static_cast<float>(points.size()) > 0.25f)
+    while (static_cast<float>(remaining_idx.size()) / static_cast<float>(points.size()) > 0.4f)
     {
-        remaining_idx = ransac(points, iterations, distance_threshold, colors, normals, remaining_idx, color_index);
+        remaining_idx = ransac(points, colors, normals, remaining_idx, iterations, distance_threshold, color_index);
         color_index++;
     }
 }
