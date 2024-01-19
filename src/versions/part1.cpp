@@ -29,6 +29,8 @@ int main(int argc, char const *argv[]) {
     if (colors.size() == 0){
         colors = std::vector<Eigen::Vector3f>(points.size(), Eigen::Vector3f(0.5f, 0.5f, 0.5f));
     }
+    RANSAC::iterations = 100; // Number of iterations
+    RANSAC::dist_threshold = 0.3f; // Distance threshold for inliers
 
     auto start = std::chrono::high_resolution_clock::now();
     RANSAC::simple_ransac(points, colors);
@@ -37,5 +39,6 @@ int main(int argc, char const *argv[]) {
     std::chrono::duration<double> duration = end - start;
     std::cout << "RANSAC took " << duration.count() << " seconds." << std::endl;
     tnp::save_obj("unique_plan.obj", points, normals, colors);
+    
     return 0;
 }

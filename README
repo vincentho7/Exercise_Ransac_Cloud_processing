@@ -1,0 +1,22 @@
+# Points Cloud Processing with RANSAC
+
+Authors :  Julien Lin, Vincent Thong, Arata Suzuki
+
+## How to use it :
+
+### BUILD
+mkdir build
+cd build
+cmake ..
+make
+
+### USE
+
+3 files have been generated for each part of the project.
+- unique_plan 
+- multiple_plan
+- improved_ransac
+
+use them like that: 
+./unique_plan data.obj
+

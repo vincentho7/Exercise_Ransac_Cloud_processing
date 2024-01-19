@@ -23,7 +23,7 @@ add_executable(multiple_plan
     src/color.cpp
     src/obj.cpp)
 
-add_executable(part3
+add_executable(improved_ransac
     src/versions/part3.cpp
     src/ransac.cpp
     src/color.cpp
